@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url  	= env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  // If you want to use Prisma Migrate, you will need to manually create a shadow database
+  // https://neon.tech/docs/guides/prisma-migrate#configure-a-shadow-database-for-prisma-migrate
+  // make sure to append ?connect_timeout=10 to the connection string
+  // shadowDatabaseUrl = env(“SHADOW_DATABASE_URL”)
+}
+
+// bikin table data user
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String
+  password String 
+  product Product[] //Kalau ada tanda [] ini artinya many
+  wishlists WishList[] // tambahkan table data wishlist dam juga [] untuk many to many
+}
+
+// bikin table data product
+model Product {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String
+  price Int
+  userId Int //hilangkan @unique disini, kalau nggak tidak bisa dipakai many 
+  user User @relation(fields: [userId], references: [id])
+  wishlist WishList [] // tambahkan table data wishlist dam juga [] untuk many to many
+  // berarti tiap table punya hubungan sama wishlist
+
+  @@index([userId]) // tambahkan ini untuk  many
+}
+
+// bikin many to many, kita bikin wishlist table data
+model WishList {
+  id Int @id @default(autoincrement())
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@index([userId]) // tambahkan ini untuk  many
+  @@index([productId]) // tambahkan ini untuk  many
+}
+
+model Todo {
+  id String @id @default(cuid())  // cuid untuk bikin random id 12-13 karakter, susah dioatk-atik databaase pake CRUD DELETE http request
+  content String 
+}
+
+// bikin query filter
+model User2 {
+  id String @id @default(cuid())
+  name String
+  email String
+  password String? @default("passwordku")
+  batch String
+  posts Post[] //artinya untuk many relation, nanti kalau sudah ada @relation dari table lain warning akan hilang kok
+}
+
+// bikin Blog yang ada user (ambil dari user2 sebelumnya) dan postingannya
+
+model Post {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  featuredImage String  // Image tidak bisa disimpan dalam database, makanya String. Disimpannya di dalam bucket/storage
+  title String
+  slug String
+  content String
+  authorId String
+  author User2 @relation(fields :[authorId], references: [id]) //field mengacu table model yg sama, references table yg beda 
+}
+
+model Member {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  password String? @default("passwordku")
+}

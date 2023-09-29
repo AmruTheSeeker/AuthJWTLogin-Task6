@@ -1,0 +1,24 @@
+### GET todos
+GET http://localhost:3000/api/v1/todos
+
+### Create todo atau POST
+POST http://localhost:3000/api/v1/todos
+
+{
+    "content" : "Todo 4"
+}
+
+### Update todo
+PATCH http://localhost:3000/api/v1/todos/cln2rn8z300002wr6ytkfi9p9
+
+{
+    "content" : "Todo1 edited"
+}
+
+// di belakang /v1/todos/cln2rn8z300002wr6ytkfi9p9 merupakan id cuid
+// ini adalah yg mau dipatch ganti message nya, 
+// id cuid random ini bisa dilihat di http://localhost:3000/api/v1/todos 
+ 
+### Update todo
+DELETE http://localhost:3000/api/v1/todos/cln2s6dcg00012woi72i29d10
+
