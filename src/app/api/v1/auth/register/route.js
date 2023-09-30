@@ -6,7 +6,7 @@ export async function POST (req) {
         const {name, email, password} = await req.json()
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcrypt.hash(password, 13)
 
         const createMember = await prisma.member.create({
             data: {
@@ -16,12 +16,11 @@ export async function POST (req) {
             }
         })
 
-        return NextResponse.json({message: "member created successfully"}, {status: 201})
+        return NextResponse.json({data: createMember, message: "member created successfully"}, {status: 201})
 
     } catch (error) {
         console.log(error)
-        return NextResponse.json({message : "Error"}, {status : 500})
+        return NextResponse.json({error}, {status : 500})
         
     }
-    return NextResponse.json({message : "Hello world!"})
 }

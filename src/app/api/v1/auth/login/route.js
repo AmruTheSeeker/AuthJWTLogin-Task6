@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
 import bcrypt from "bcrypt";
+import { sign } from "jsonwebtoken";
 
 export async function POST(req) {
   const { email, password } = await req.json();
@@ -15,16 +16,18 @@ export async function POST(req) {
 
     // CODE TO CHECK IF USER EXIST 
     // if (findUser === null) cara 1
+
     if (!findUser) {   //cara 2, ingat mulai dari jika gagal atau not found dulu
-        return NextResponse.json({message: "User not found"})
+        return NextResponse.json({error: "User not found"}, {status : 400})
     } 
+
     
     // CODE UNTUK CHECK DAN COMPARE PASSWORD
     const hashedPassword = findUser.password
-    const isPasswordValid = await bcrypt.compare(password,hashedPassword)
+    const isPasswordValid = await bcrypt.compare(password, hashedPassword)
 
     if(!isPasswordValid){
-        return NextResponse.json({message: "Invalid Password" });
+        return NextResponse.json({error: "Invalid email or password" }, {status: 400});
     }
     
     // Sekarang kita pilih data tertentu saja yang hendak ditampilkan dari user pake payload.
@@ -34,11 +37,15 @@ export async function POST(req) {
         name : findUser.name,
         email : findUser.email,
     }
-    return NextResponse.json({ data: payLoad });
+    
+    // Best Practice : Dibikin agar token disimpan didalam cookies browser (inspect -> application -> cookies)
+    const accessToken = sign (payLoad,process.env.JWT_SECRET, {expiresIn: "7d"})
+    const res = NextResponse.json({ accessToken, data: payLoad, message : "User login successfully" })
+    res.cookies.set("token",accessToken);
+
+    return res
     
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ message: "Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json({ message: "Hello world!" });
 }
