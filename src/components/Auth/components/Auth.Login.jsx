@@ -24,7 +24,8 @@ export const AuthLogin = () => {
          method: "POST",
          body: JSON.stringify(loginData),
        });
-       const {data, error} = await res.json(); 
+       const {data, error} = await res.json();
+       
 
        if (error){
       toast.remove()
@@ -36,6 +37,7 @@ export const AuthLogin = () => {
        toast.remove()
        toast.success("Login successfully")
        console.log(data)
+      
      };
 
   return (
